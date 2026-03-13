@@ -81,8 +81,8 @@ def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
 
     # Genre match
     if song["genre"] == user_prefs["genre"]:
-        score += 2.0
-        reasons.append("genre match (+2.0)")
+        score += 1.0
+        reasons.append("genre match (+1.0)")
 
     # Mood match
     if song["mood"] == user_prefs["mood"]:
@@ -91,7 +91,7 @@ def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
 
     # Energy similarity
     energy_similarity = 1 - abs(song["energy"] - user_prefs["energy"])
-    energy_points = energy_similarity * 2.0
+    energy_points = energy_similarity * 4.0
     score += energy_points
     reasons.append(f"energy similarity (+{energy_points:.2f})")
 
@@ -113,15 +113,57 @@ def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
 
 def recommend_songs(user_prefs: Dict, songs: List[Dict], k: int = 5) -> List[Tuple[Dict, float, str]]:
     """
-    Score all songs, rank them from highest to lowest, and return the top k.
+    Score songs, apply a simple diversity penalty, and return the top k results.
     """
-    scored_songs: List[Tuple[Dict, float, str]] = []
+    base_scored_songs: List[Tuple[Dict, float, List[str]]] = []
 
     for song in songs:
         score, reasons = score_song(user_prefs, song)
-        explanation = ", ".join(reasons)
-        scored_songs.append((song, score, explanation))
+        base_scored_songs.append((song, score, reasons))
 
-    ranked_songs = sorted(scored_songs, key=lambda item: item[1], reverse=True)
+    remaining_songs = sorted(
+        base_scored_songs,
+        key=lambda item: item[1],
+        reverse=True,
+    )
 
-    return ranked_songs[:k]
+    selected_recommendations: List[Tuple[Dict, float, str]] = []
+    used_artists = set()
+    used_genres = set()
+
+    while remaining_songs and len(selected_recommendations) < k:
+        best_candidate = None
+        best_adjusted_score = float("-inf")
+        best_explanation = ""
+
+        for song, base_score, reasons in remaining_songs:
+            adjusted_score = base_score
+            adjusted_reasons = reasons.copy()
+
+            if song["artist"] in used_artists:
+                adjusted_score -= 0.75
+                adjusted_reasons.append("artist diversity penalty (-0.75)")
+
+            if song["genre"] in used_genres:
+                adjusted_score -= 0.50
+                adjusted_reasons.append("genre diversity penalty (-0.50)")
+
+            if adjusted_score > best_adjusted_score:
+                best_adjusted_score = adjusted_score
+                best_candidate = (song, base_score, reasons)
+                best_explanation = ", ".join(adjusted_reasons)
+
+        if best_candidate is None:
+            break
+
+        chosen_song, _, _ = best_candidate
+        selected_recommendations.append((chosen_song, best_adjusted_score, best_explanation))
+        used_artists.add(chosen_song["artist"])
+        used_genres.add(chosen_song["genre"])
+
+        remaining_songs = [
+            item for item in remaining_songs
+            if item[0]["id"] != chosen_song["id"]
+        ]
+
+    return selected_recommendations
