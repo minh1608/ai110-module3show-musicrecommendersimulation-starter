@@ -32,6 +32,36 @@ After calculating scores for all songs, the system **sorts songs by score from h
 
 This approach simulates a **content-based filtering recommender**, where recommendations are based on song attributes rather than other users’ listening behavior.
 
+### Algorithm Recipe
+
+The recommender calculates a score for each song based on how closely the song’s features match the user's preferences.
+
+Scoring rules:
+
+- +2.0 points if the song's **genre** matches the user's favorite genre.
+- +1.5 points if the song's **mood** matches the user's favorite mood.
+- Additional points are added based on how close numerical features are to the user's target values.
+
+Similarity scoring for numerical features:
+
+- **Energy similarity**  
+  `1 - abs(song_energy - target_energy)`  
+  multiplied by weight **2.0**
+
+- **Tempo similarity**  
+  `1 - min(abs(song_tempo - target_tempo) / 100, 1)`  
+  multiplied by weight **1.5**
+
+- **Valence similarity**  
+  `1 - abs(song_valence - target_valence)`  
+  multiplied by weight **1.0**
+
+After scoring every song in the dataset, the system sorts the songs by total score from highest to lowest and returns the top recommendations.
+
+### Potential Bias
+
+This recommender may over-prioritize certain features, especially genre. Because genre has a strong weight in the scoring rule, the system may repeatedly recommend songs from the same genre even if other songs match the user's mood or energy well. This could reduce diversity in recommendations and create a small "filter bubble" effect.
+
 ---
 
 ## Getting Started
