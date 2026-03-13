@@ -2,32 +2,35 @@
 
 ## Project Summary
 
-In this project you will build and explain a small music recommender system.
+This project simulates a simple content-based music recommender system. Songs are represented using features such as genre, mood, energy, tempo, and valence. A user profile stores preferred values for these features to represent a listener’s taste.
 
-Your goal is to:
-
-- Represent songs and a user "taste profile" as data
-- Design a scoring rule that turns that data into recommendations
-- Evaluate what your system gets right and wrong
-- Reflect on how this mirrors real world AI recommenders
-
-Replace this paragraph with your own summary of what your version does.
+The recommender compares each song’s attributes to the user’s preferences and calculates a weighted score based on how closely they match. Songs with higher scores are ranked higher and returned as recommendations. This simulation demonstrates how recommendation systems transform structured data into predictions by combining feature similarity with a ranking algorithm.
 
 ---
 
 ## How The System Works
 
-Explain your design in plain language.
+The system works by comparing song attributes to a user’s taste profile and calculating how closely they match.
 
-Some prompts to answer:
+Each **Song** includes the following features from the dataset:
 
-- What features does each `Song` use in your system
-  - For example: genre, mood, energy, tempo
-- What information does your `UserProfile` store
-- How does your `Recommender` compute a score for each song
-- How do you choose which songs to recommend
+- genre
+- mood
+- energy
+- tempo_bpm
+- valence
 
-You can include a simple diagram or bullet list if helpful.
+The **UserProfile** stores the listener’s preferred values for these features, such as their favorite genre, mood, and preferred energy level.
+
+The **Recommender** calculates a score for every song in the catalog using a weighted scoring rule:
+
+- If the song’s **genre matches** the user’s preferred genre, it adds a large score bonus.
+- If the **mood matches**, it adds a smaller bonus.
+- For numerical features like **energy**, **tempo**, and **valence**, the score increases when the song’s value is closer to the user’s preference.
+
+After calculating scores for all songs, the system **sorts songs by score from highest to lowest**. The top ranked songs are returned as recommendations.
+
+This approach simulates a **content-based filtering recommender**, where recommendations are based on song attributes rather than other users’ listening behavior.
 
 ---
 
