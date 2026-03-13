@@ -77,6 +77,15 @@ After scoring every song in the dataset, the system sorts the songs by total sco
 
 ---
 
+## User Preference vs Song Feature Comparison
+
+![Preference Radar](preference_radar.png)
+
+This radar chart compares a user's listening preferences with the feature profile of a recommended song.  
+The closer the shapes overlap, the better the song matches the user's taste profile.
+
+---
+
 ## Example Recommendation Output
 
 Example recommendations for a **High-Energy Pop** user profile:
